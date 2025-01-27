@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8" />
+  <title>Главная | Maestro Pizza</title>
+
+  <!-- Подключаемся к layout.html:
+       заменяем тамошний фрагмент contentPlaceholder на наш контент -->
+  <th:block th:replace="~{layout :: contentPlaceholder}">
+    <!-- Наш контент оборачиваем во фрагмент с тем же именем -->
+    <th:block th:fragment="contentPlaceholder">
+
+      <div class="text-center py-5">
+        <h1>Добро пожаловать в Maestro Pizza!</h1>
+        <p class="lead mt-3">
+          Самые вкусные пиццы по приятным ценам. Доставка и самовывоз.
+        </p>
+        <a class="btn btn-warning btn-lg fw-bold text-white" th:href="@{/pizzas}">
+          Перейти к каталогу
+        </a>
+      </div>
+
+    </th:block>
+  </th:block>
+</head>
+<body>
+<a href=""></a>
+</body>
+</html>

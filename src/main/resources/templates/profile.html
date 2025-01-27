@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8" />
+  <title>Профиль | Maestro Pizza</title>
+
+  <th:block th:replace="~{layout :: contentPlaceholder}">
+    <th:block th:fragment="contentPlaceholder">
+
+      <h2 class="mb-4">Мой профиль</h2>
+      <div class="card mb-4" style="max-width: 500px;">
+        <div class="card-body">
+          <h5 class="card-title" th:text="${user.fullName}">Имя Фамилия</h5>
+          <p class="card-text mb-1">
+            <strong>Логин:</strong>
+            <span th:text="${user.username}">username</span>
+          </p>
+        </div>
+      </div>
+
+      <h4>Мои заказы</h4>
+      <div th:if="${orders == null or orders.size() == 0}">
+        <p>У вас ещё нет заказов.</p>
+      </div>
+      <div th:if="${orders != null and orders.size() > 0}">
+        <table class="table table-sm">
+          <thead>
+          <tr>
+            <th>ID заказа</th>
+            <th>Дата</th>
+            <th>Оплачен?</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr th:each="ord : ${orders}">
+            <td th:text="${ord.id}"></td>
+            <td th:text="${#temporals.format(ord.createdAt, 'dd.MM.yyyy HH:mm')}"></td>
+            <td th:text="${ord.paymentInfo != null ? 'Да' : 'Нет'}"></td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+
+    </th:block>
+  </th:block>
+</head>
+<body></body>
+</html>

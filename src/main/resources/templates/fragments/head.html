@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <title th:text="${title}">Пиццерия</title>
+  <meta charset="UTF-8"/>
+  <link rel="stylesheet" th:href="@{/css/styles.css}" />
+  <script th:src="@{/js/modal.js}"></script>
+</head>
+<body>
+<div class="nav">
+  <a th:href="@{/}">Главная</a> |
+  <a th:href="@{/pizzas}">Каталог</a> |
+  <a th:href="@{/cart}">Корзина</a> |
+  <a th:href="@{/profile}">Профиль</a> |
+  <a th:href="@{/logout}">Выход</a>
+</div>
+<div class="container">
+  <div th:if="${title != null}">
+    <h1 th:text="${title}"></h1>
+  </div>
+</div>
+<!-- Плоть шаблона начнётся в дочерних файлах -->
+</body>
+</html>

@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title>Maestro Pizza - Layout</title>
+
+    <!-- Подключаем Bootstrap (CDN) -->
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+
+    <!-- Подключаем свои стили (если нужно - меняйте путь) -->
+    <link rel="stylesheet" th:href="@{/css/styles.css}" />
+</head>
+<body>
+
+<!-- ======== Шапка (navbar) ======== -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+    <div class="container-fluid">
+        <a class="navbar-brand fw-bold" th:href="@{/}">
+            <span style="color: #ff6600;">Maestro Pizza</span>
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                data-bs-target="#navbarNav" aria-controls="navbarNav"
+                aria-expanded="false" aria-label="Переключить навигацию">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                <!-- Пример: ссылки на разные страницы -->
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/pizzas}">Каталог</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/cart}">Корзина</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/profile}">Профиль</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/logout}">Выход</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- Отступ, чтобы фиксированный navbar не перекрывал контент -->
+<div style="padding-top: 70px;"></div>
+
+<!-- ======== Место, куда вставляется контент дочерних страниц ======== -->
+<div class="container mt-4" th:fragment="contentPlaceholder">
+    <!-- Если дочерний шаблон не передаст контент, то здесь будет пусто. -->
+</div>
+
+<!-- ======== Подвал ======== -->
+<footer class="bg-dark text-white text-center p-3 mt-5">
+    <div class="container">
+        <p class="mb-0">© 2025 Maestro Pizza. Все права защищены.</p>
+    </div>
+</footer>
+
+<!-- Подключение Bootstrap JS Bundle (для Collapse и т.д.) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Ваши скрипты -->
+<script th:src="@{/js/scripts.js}" defer></script>
+</body>
+</html>

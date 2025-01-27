@@ -1,0 +1,398 @@
+/*********************************************
+ * Общая стилизация, вдохновлённая Dodo Pizza
+ *********************************************/
+
+/* Цветовая палитра */
+:root {
+    --dodo-orange: #ff6900; /* основной оранжевый */
+    --dodo-orange-dark: #e55f00;
+    --navbar-dark-bg: #1f1f1f; /* темный фон для шапки */
+}
+
+/* Сбрасываем отступы body, если нужно */
+body {
+    margin: 0;
+    font-family: "Segoe UI", Roboto, Arial, sans-serif;
+    background-color: #f9f9f9;
+    color: #333;
+}
+
+/********************************************
+ * NAVBAR
+ ********************************************/
+.dodo-nav {
+    background-color: var(--navbar-dark-bg) !important;
+    /* Можно сделать оттенок или легкий градиент для визуального эффекта */
+}
+
+.dodo-logo {
+    font-size: 1.4rem;
+    font-weight: bold;
+    color: var(--dodo-orange) !important;
+    transition: transform 0.2s;
+}
+.dodo-logo:hover {
+    transform: scale(1.1);
+    color: var(--dodo-orange-dark) !important;
+}
+
+.navbar-nav .nav-link {
+    color: #ddd !important;
+    transition: color 0.2s;
+}
+.navbar-nav .nav-link:hover {
+    color: #fff !important;
+}
+
+/********************************************
+ * FOOTER
+ ********************************************/
+.dodo-footer {
+    background-color: #2f2f2f;
+    color: #ddd;
+    padding: 20px 0;
+    text-align: center;
+}
+.dodo-footer p {
+    margin: 0;
+    font-size: 0.9rem;
+}
+
+/********************************************
+ * Кнопки (общие)
+ ********************************************/
+.btn-orange {
+    background-color: var(--dodo-orange);
+    color: #fff;
+    transition: background-color 0.3s, transform 0.2s;
+    border: none;
+    padding: 0.6rem 1.2rem;
+    font-weight: 500;
+}
+.btn-orange:hover {
+    background-color: var(--dodo-orange-dark);
+    transform: translateY(-2px);
+}
+
+/********************************************
+ * Hero Section (главная)
+ ********************************************/
+.hero-section {
+    background: url("https://dodopizza-a.akamaihd.net/static/Img/Banners/g_1629374615_9275.jpg") center/cover no-repeat;
+    color: #fff;
+    min-height: 400px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    margin-bottom: 2rem; /* Чтобы отделить hero от другого контента */
+    padding: 2rem;       /* Отступ внутри hero-блока */
+}
+.hero-section h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+}
+.hero-section p.lead {
+    font-size: 1.25rem;
+    margin-bottom: 1.5rem;
+}
+
+/********************************************
+ * Каталог пицц (pizzas.html)
+ ********************************************/
+/* Свайп-меню (горизонтальная прокрутка категорий) */
+.category-scroll {
+    display: flex;
+    overflow-x: auto;
+    white-space: nowrap;
+    gap: 1rem;
+    padding: 0.5rem 0;
+    margin-bottom: 1rem;
+}
+.category-scroll::-webkit-scrollbar {
+    height: 6px;
+}
+.category-scroll::-webkit-scrollbar-thumb {
+    background-color: #ccc;
+    border-radius: 3px;
+}
+.category-link {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    background-color: #f1f1f1;
+    border-radius: 20px;
+    color: #333;
+    font-weight: 500;
+    text-decoration: none;
+    transition: background-color 0.3s;
+}
+.category-link:hover {
+    background-color: #ddd;
+}
+
+/* Карточки пицц */
+.card.pizza-card {
+    border: 1px solid #eee;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.07);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+.card.pizza-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+.card.pizza-card img {
+    height: 220px;
+    object-fit: cover;
+}
+.card.pizza-card .card-body {
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+}
+.card.pizza-card .card-title {
+    font-size: 1.2rem;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+}
+.card.pizza-card .card-text {
+    margin-bottom: 0.75rem;
+    font-weight: 500;
+}
+.card.pizza-card .price {
+    color: var(--dodo-orange);
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+}
+.card.pizza-card .btn {
+    margin-top: auto;
+    background-color: var(--dodo-orange);
+    color: #fff;
+    border: none;
+    transition: background-color 0.3s;
+}
+.card.pizza-card .btn:hover {
+    background-color: var(--dodo-orange-dark);
+}
+
+/********************************************
+ * Корзина (cart.html)
+ ********************************************/
+.cart-container {
+    background-color: #fff;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+.cart-title {
+    color: var(--dodo-orange);
+    margin-bottom: 1rem;
+    font-weight: 600;
+    font-size: 1.5rem;
+}
+.cart-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1rem;
+}
+.cart-table th {
+    background-color: #f7f7f7;
+    font-weight: 600;
+}
+.cart-table td, .cart-table th {
+    padding: 0.75rem;
+    vertical-align: middle;
+    border: 1px solid #eee;
+}
+.cart-total {
+    font-weight: 600;
+    font-size: 1.2rem;
+    margin-top: 1rem;
+    text-align: right;
+}
+.payment-form .btn {
+    background-color: var(--dodo-orange);
+    border: none;
+    color: #fff;
+}
+.payment-form .btn:hover {
+    background-color: var(--dodo-orange-dark);
+}
+
+/********************************************
+ * Страницы авторизации/регистрации (login, register)
+ ********************************************/
+.form-container {
+    background: #fff;
+    border-radius: 8px;
+    padding: 30px;
+    max-width: 450px;
+    margin: 50px auto;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+/* Заголовок формы */
+.form-container h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: var(--dodo-orange);
+    font-weight: 600;
+}
+
+/* Поля ввода и лейблы */
+.form-container label {
+    display: block;
+    margin-bottom: 0.4rem;
+    font-weight: 500;
+    color: #555;
+}
+.form-container input[type="text"],
+.form-container input[type="email"],
+.form-container input[type="password"] {
+    width: 100%;
+    padding: 0.6rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    margin-bottom: 1rem;
+    font-size: 1rem;
+    transition: border-color 0.2s;
+}
+.form-container input[type="text"]:focus,
+.form-container input[type="email"]:focus,
+.form-container input[type="password"]:focus {
+    outline: none;
+    border-color: var(--dodo-orange);
+}
+
+/* Кнопка входа/регистрации */
+.form-container .btn {
+    background-color: var(--dodo-orange);
+    border: none;
+    color: #fff;
+    width: 100%;
+    font-weight: 600;
+    padding: 0.6rem;
+    transition: background-color 0.3s, transform 0.2s;
+    cursor: pointer;
+}
+.form-container .btn:hover {
+    background-color: var(--dodo-orange-dark);
+    transform: translateY(-2px);
+}
+.form-container .text-center {
+    text-align: center;
+}
+
+.form-container a {
+    color: var(--dodo-orange);
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s;
+}
+.form-container a:hover {
+    color: var(--dodo-orange-dark);
+}
+
+/********************************************
+ * Профиль (profile.html)
+ ********************************************/
+.profile-container {
+    background: #fff;
+    border-radius: 8px;
+    padding: 20px;
+    max-width: 700px;
+    margin: 20px auto;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+.profile-container h2 {
+    margin-bottom: 1rem;
+    color: var(--dodo-orange);
+}
+.profile-info {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 2rem;
+}
+.profile-info .label {
+    font-weight: 600;
+    margin-right: 1rem;
+    color: #444;
+}
+.profile-info .value {
+    font-weight: 400;
+}
+.profile-orders table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1rem;
+}
+.profile-orders table th,
+.profile-orders table td {
+    border: 1px solid #eee;
+    padding: 0.5rem;
+    text-align: center;
+}
+.profile-orders table thead {
+    background-color: #f7f7f7;
+    font-weight: 600;
+}
+
+/********************************************
+ * Модальное окно (если используете кастом)
+ ********************************************/
+.modal-custom {
+    display: none; /* Скрыто по умолчанию */
+    position: fixed;
+    z-index: 9999; /* Поверх всего */
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto; /* Если контент больше экрана */
+    background-color: rgba(0,0,0,0.5); /* Полупрозрачный фон */
+}
+.modal-content-custom {
+    background-color: #fff;
+    margin: 5% auto;
+    padding: 20px;
+    border-radius: 8px;
+    max-width: 600px; /* Ширина модалки */
+    position: relative;
+    animation: fadeIn 0.3s forwards;
+}
+.close-modal {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #aaa;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+.close-modal:hover {
+    color: #333;
+}
+.modal-body-custom img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin-bottom: 20px;
+}
+
+/********************************************
+ * АНИМАЦИИ
+ ********************************************/
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}

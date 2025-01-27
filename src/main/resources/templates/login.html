@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8" />
+  <title>Вход | Maestro Pizza</title>
+
+
+  <th:block th:replace="~{layout :: contentPlaceholder}">
+    <th:block th:fragment="contentPlaceholder">
+
+      <div class="row justify-content-center mt-5">
+        <div class="col-md-4">
+          <h2 class="text-center mb-4">Вход</h2>
+
+          <!-- Форма логина (Spring Security) -->
+          <form th:action="@{/login}" method="post">
+            <div class="mb-3">
+              <label for="username" class="form-label">Логин</label>
+              <input type="text" class="form-control" id="username"
+                     name="username" required />
+            </div>
+            <div class="mb-3">
+              <label for="password" class="form-label">Пароль</label>
+              <input type="password" class="form-control" id="password"
+                     name="password" required />
+            </div>
+            <button type="submit" class="btn btn-primary w-100">Войти</button>
+          </form>
+
+          <div class="text-center mt-3">
+            <a th:href="@{/register}" class="text-decoration-underline">
+              Нет аккаунта? Зарегистрируйтесь
+            </a>
+          </div>
+        </div>
+      </div>
+
+    </th:block>
+  </th:block>
+
+</head>
+<body></body>
+</html>

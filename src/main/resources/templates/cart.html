@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8" />
+  <title>Корзина | Maestro Pizza</title>
+
+  <th:block th:replace="~{layout :: contentPlaceholder}">
+    <th:block th:fragment="contentPlaceholder">
+
+      <h2 class="mb-4">Моя корзина</h2>
+
+      <div th:if="${order == null}">
+        <p>Корзина пуста.</p>
+      </div>
+
+      <div th:if="${order != null}">
+        <table class="table table-bordered align-middle">
+          <thead>
+          <tr>
+            <th>Название</th>
+            <th>Кол-во</th>
+            <th>Цена за шт.</th>
+            <th>Сумма</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr th:each="item : ${order.items}">
+            <td th:text="${item.pizza.name}">Pizza Name</td>
+            <td th:text="${item.quantity}">0</td>
+            <td th:text="${item.pizza.price}">0.00</td>
+            <td th:text="${item.quantity * item.pizza.price}">0.00</td>
+          </tr>
+          </tbody>
+        </table>
+
+        <div class="mb-4 fw-bold fs-5">
+          Итого: <span th:text="${#numbers.formatDecimal(totalPrice, 2, 2)}">0.00</span> ₽
+        </div>
+
+        <!-- Форма оплаты -->
+        <h4>Оформление заказа</h4>
+        <form th:action="@{/cart/checkout}" method="post" th:object="${paymentInfo}" class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label">Номер карты</label>
+            <input type="text" th:field="*{cardNumber}" class="form-control" required>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Имя на карте</label>
+            <input type="text" th:field="*{cardHolderName}" class="form-control" required>
+          </div>
+          <div class="col-md-12">
+            <label class="form-label">Адрес</label>
+            <input type="text" th:field="*{address}" class="form-control" required>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Город</label>
+            <input type="text" th:field="*{city}" class="form-control" required>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Почтовый индекс</label>
+            <input type="text" th:field="*{postalCode}" class="form-control" required>
+          </div>
+          <div class="col-12">
+            <button type="submit" class="btn btn-primary">
+              Оплатить
+            </button>
+          </div>
+        </form>
+      </div>
+
+    </th:block>
+  </th:block>
+</head>
+<body></body>
+</html>
