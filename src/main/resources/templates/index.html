@@ -4,26 +4,168 @@
   <meta charset="UTF-8" />
   <title>Главная | Maestro Pizza</title>
 
-  <!-- Подключаемся к layout.html:
-       заменяем тамошний фрагмент contentPlaceholder на наш контент -->
-  <th:block th:replace="~{layout :: contentPlaceholder}">
-    <!-- Наш контент оборачиваем во фрагмент с тем же именем -->
-    <th:block th:fragment="contentPlaceholder">
+  <style>
+    /*
+      Убираем и горизонтальный, и вертикальный скролл
+      (overflow: hidden), растягиваем на всю высоту
+    */
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden; /* полностью убираем прокрутку */
+      font-family: "Arial", sans-serif;
+      background: linear-gradient(135deg, #ffa23f 0%, #ff5740 100%);
+      background-attachment: fixed;
+      color: #fff;
+      position: relative;
+    }
 
-      <div class="text-center py-5">
-        <h1>Добро пожаловать в Maestro Pizza!</h1>
-        <p class="lead mt-3">
-          Самые вкусные пиццы по приятным ценам. Доставка и самовывоз.
-        </p>
-        <a class="btn btn-warning btn-lg fw-bold text-white" th:href="@{/pizzas}">
-          Перейти к каталогу
-        </a>
-      </div>
+    /* Контейнер растягивается по высоте экрана, центрирует контент */
+    .main-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+      height: 100%;     /* чтобы занять весь экран */
+      text-align: center;
+      position: relative;
+      z-index: 1;       /* над пузырьками */
+      padding: 2rem;
+      box-sizing: border-box; /* учитываем отступы */
+    }
 
-    </th:block>
-  </th:block>
+    /* Анимированные "пузырьки"/"топпинги" */
+    .pizza-toppings {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      overflow: hidden;
+      z-index: 0;
+    }
+    .pizza-toppings li {
+      position: absolute;
+      display: block;
+      border-radius: 50%;
+      bottom: -50px;
+      animation: toppingFloat 15s infinite ease-in-out;
+    }
+    /* Несколько кружочков разного цвета и размера */
+    .pizza-toppings li:nth-child(1)  { background: #d9534f; width: 40px; height: 40px;  left: 10%; }
+    .pizza-toppings li:nth-child(2)  { background: #343a40; width: 30px; height: 30px;  left: 25%; animation-delay: 2s; }
+    .pizza-toppings li:nth-child(3)  { background: #5cb85c; width: 25px; height: 25px;  left: 40%; animation-delay: 4s; }
+    .pizza-toppings li:nth-child(4)  { background: #d9534f; width: 60px; height: 60px;  left: 55%; animation-delay: 1s; }
+    .pizza-toppings li:nth-child(5)  { background: #343a40; width: 35px; height: 35px;  left: 70%; animation-delay: 3s; }
+    .pizza-toppings li:nth-child(6)  { background: #5cb85c; width: 45px; height: 45px;  left: 85%; animation-delay: 5s; }
+    .pizza-toppings li:nth-child(7)  { background: #d9534f; width: 80px; height: 80px;  left: 30%; animation-delay: 6s; }
+    .pizza-toppings li:nth-child(8)  { background: #343a40; width: 20px; height: 20px;  left: 60%; animation-delay: 7s; }
+    .pizza-toppings li:nth-child(9)  { background: #5cb85c; width: 25px; height: 25px;  left: 45%; animation-delay: 8s; }
+    .pizza-toppings li:nth-child(10) { background: #d9534f; width: 50px; height: 50px;  left: 75%; animation-delay: 2s; }
+
+    @keyframes toppingFloat {
+      0%   { transform: translateY(0) rotate(0deg);   opacity: 1; }
+      100% { transform: translateY(-1000px) rotate(720deg); opacity: 0; }
+    }
+
+    /* Полупрозрачная карточка */
+    .hero-card {
+      background-color: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(6px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 20px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      padding: 2rem;
+      max-width: 700px;
+      margin: 0 auto;
+    }
+
+    /* Заголовок */
+    .main-title {
+      font-size: 3rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+    }
+
+    /* Подзаголовок */
+    .main-lead {
+      font-size: 1.25rem;
+      font-weight: 300;
+      margin-bottom: 2rem;
+    }
+
+    /* Кнопка */
+    .btn-pizza {
+      display: inline-block;
+      text-transform: uppercase;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #fff;
+      background: linear-gradient(45deg, #ffdc00, #ff5151);
+      border: none;
+      border-radius: 25px;
+      padding: 0.8rem 2.5rem;
+      transition: all 0.3s ease;
+      text-decoration: none; /* убираем подчеркивание */
+      box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+    }
+    .btn-pizza:hover {
+      transform: translateY(-3px);
+      background: linear-gradient(45deg, #ff5151, #f44141);
+      box-shadow: 0 12px 20px rgba(0, 0, 0, 0.3);
+      color: #fff;
+    }
+
+    /* Адаптивность */
+    @media (max-width: 576px) {
+      .main-title {
+        font-size: 2rem;
+      }
+      .main-lead {
+        font-size: 1.1rem;
+      }
+    }
+  </style>
 </head>
+
 <body>
-<a href=""></a>
+<!-- Если Thymeleaf, оставьте теги:
+<th:block th:replace="~{layout :: contentPlaceholder}">
+  <th:block th:fragment="contentPlaceholder">
+-->
+
+<!-- Кружочки на заднем плане -->
+<ul class="pizza-toppings">
+  <li></li><li></li><li></li><li></li><li></li>
+  <li></li><li></li><li></li><li></li><li></li>
+</ul>
+
+<!-- Основной контейнер -->
+<div class="main-container">
+  <div class="hero-card">
+    <h1 class="main-title">
+      Добро пожаловать в Maestro Pizza!
+    </h1>
+    <p class="main-lead">
+      Самые вкусные пиццы по приятным ценам.<br/>
+      Доставка и самовывоз, готовим с любовью!
+    </p>
+    <!-- Кнопка-ссылка, измените # на нужную ссылку (Thymeleaf: th:href="@{/pizzas}") -->
+    <a class="btn-pizza" th:href="@{/pizzas}">
+      Перейти к каталогу
+    </a>
+  </div>
+</div>
+
+<!-- Если Thymeleaf, закройте теги:
+  </th:block>
+</th:block>
+-->
 </body>
 </html>

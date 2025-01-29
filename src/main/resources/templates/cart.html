@@ -4,72 +4,275 @@
   <meta charset="UTF-8" />
   <title>Корзина | Maestro Pizza</title>
 
-  <th:block th:replace="~{layout :: contentPlaceholder}">
-    <th:block th:fragment="contentPlaceholder">
+  <style>
+    /* ====== Глобальный фон и анимация "топпингов" ====== */
+    html, body {
+      margin: 0; padding: 0;
+      width: 100%; height: 100%;
+      overflow-x: hidden;
+      font-family: "Arial", sans-serif;
+      background: linear-gradient(135deg, #ffa23f 0%, #ff5740 100%);
+      background-attachment: fixed;
+      color: #fff;
+      position: relative;
+    }
+    .pizza-toppings {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      margin: 0; padding: 0;
+      list-style: none; overflow: hidden;
+      z-index: 0;
+      pointer-events: none;
+    }
+    .pizza-toppings li {
+      position: absolute; display: block;
+      border-radius: 50%;
+      bottom: -50px;
+      animation: toppingFloat 15s infinite ease-in-out;
+    }
+    /* Примерная раскладка */
+    .pizza-toppings li:nth-child(1)  { background: #d9534f; width: 40px; height: 40px;  left: 10%; }
+    .pizza-toppings li:nth-child(2)  { background: #343a40; width: 30px; height: 30px;  left: 25%; animation-delay: 2s; }
+    .pizza-toppings li:nth-child(3)  { background: #5cb85c; width: 25px; height: 25px;  left: 40%; animation-delay: 4s; }
+    .pizza-toppings li:nth-child(4)  { background: #d9534f; width: 60px; height: 60px;  left: 55%; animation-delay: 1s; }
+    .pizza-toppings li:nth-child(5)  { background: #343a40; width: 35px; height: 35px;  left: 70%; animation-delay: 3s; }
+    .pizza-toppings li:nth-child(6)  { background: #5cb85c; width: 45px; height: 45px;  left: 85%; animation-delay: 5s; }
+    .pizza-toppings li:nth-child(7)  { background: #d9534f; width: 80px; height: 80px;  left: 30%; animation-delay: 6s; }
+    .pizza-toppings li:nth-child(8)  { background: #343a40; width: 20px; height: 20px;  left: 60%; animation-delay: 7s; }
+    .pizza-toppings li:nth-child(9)  { background: #5cb85c; width: 25px; height: 25px;  left: 45%; animation-delay: 8s; }
+    .pizza-toppings li:nth-child(10) { background: #d9534f; width: 50px; height: 50px;  left: 75%; animation-delay: 2s; }
 
-      <h2 class="mb-4">Моя корзина</h2>
+    @keyframes toppingFloat {
+      0%   { transform: translateY(0)   rotate(0deg);   opacity: 1; }
+      100% { transform: translateY(-1000px) rotate(720deg); opacity: 0; }
+    }
 
-      <div th:if="${order == null}">
-        <p>Корзина пуста.</p>
+    /* ====== "Стеклянная" шапка (navbar) ====== */
+    .navbar {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 60px;
+      background: rgba(0,0,0,0.3);
+      backdrop-filter: blur(6px);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 1rem;
+      box-sizing: border-box;
+      z-index: 10;
+      border-bottom: 1px solid rgba(255,255,255,0.2);
+    }
+    .navbar .logo {
+      font-weight: bold; font-size: 1.5rem;
+    }
+    .navbar .nav-links a {
+      margin-left: 1.5rem;
+      color: #fff;
+      text-decoration: none;
+      font-weight: 600;
+      transition: color 0.3s;
+    }
+    .navbar .nav-links a:hover {
+      color: #ffdc00;
+    }
+
+    /* ====== Контейнер для остального контента ====== */
+    .page-content {
+      margin-top: 80px;
+      padding: 2rem;
+      box-sizing: border-box;
+      position: relative;
+      z-index: 1;
+      max-width: 1200px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .cart-heading {
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 1.5rem;
+    }
+
+    /* ====== Блок корзины ====== */
+    .cart-block {
+      width: 70%;
+      max-width: 800px;
+      margin: 0 auto 2rem; /* центрируем */
+      background: rgba(255,255,255,0.2);
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      padding: 1.5rem;
+    }
+
+    .empty-cart {
+      font-size: 1.2rem;
+    }
+
+    /* Таблица с позициями */
+    .cart-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 1.5rem;
+      background: rgba(255,255,255,0.15);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+    .cart-table th, .cart-table td {
+      padding: 0.7rem 1rem;
+      border: none;
+      font-size: 1rem;
+      color: #fff;
+    }
+    .cart-table thead {
+      background: rgba(255,255,255,0.3);
+      font-weight: 600;
+    }
+    .cart-table tr:nth-child(even) {
+      background: rgba(255,255,255,0.1);
+    }
+    .cart-table th {
+      text-align: left;
+    }
+
+    .cart-total {
+      font-size: 1.2rem;
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+    }
+
+    /* ====== Форма оплаты (Payment) ====== */
+    .checkout-form {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 1rem;
+    }
+    .checkout-form label {
+      display: block;
+      margin-bottom: 0.3rem;
+      font-weight: 600;
+    }
+    .checkout-form input[type="text"] {
+      width: 100%;
+      padding: 0.5rem;
+      border: none;
+      border-radius: 6px;
+      outline: none;
+      font-size: 1rem;
+      margin-bottom: 0.5rem;
+    }
+    .checkout-form button {
+      grid-column: 1 / -1; /* кнопка на всю ширину сетки */
+      background: #5cb85c;
+      border: none;
+      padding: 0.7rem 1.2rem;
+      color: #fff;
+      font-weight: 600;
+      font-size: 1rem;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.3s;
+      margin-top: 0.5rem;
+    }
+    .checkout-form button:hover {
+      background: #4cae4c;
+    }
+  </style>
+</head>
+
+<body>
+
+<!-- Анимированные "топпинги" на фоне -->
+<ul class="pizza-toppings">
+  <li></li><li></li><li></li><li></li><li></li>
+  <li></li><li></li><li></li><li></li><li></li>
+</ul>
+
+<!-- Navbar -->
+<div class="navbar">
+  <div class="logo">Maestro Pizza</div>
+  <div class="nav-links">
+    <a th:href="@{/pizzas}">Каталог</a>
+    <a th:href="@{/profile}">Профиль</a>
+  </div>
+</div>
+
+<div class="page-content">
+
+  <h1 class="cart-heading">Моя корзина</h1>
+
+  <!-- Блок корзины -->
+  <div class="cart-block">
+
+    <!-- Если нет заказа => корзина пуста -->
+    <p class="empty-cart" th:if="${order == null}">
+      Корзина пуста.
+    </p>
+
+    <!-- Если заказ есть => выводим таблицу и форму -->
+    <div th:if="${order != null}">
+      <!-- Таблица позиций -->
+      <table class="cart-table">
+        <thead>
+        <tr>
+          <th>Название</th>
+          <th>Кол-во</th>
+          <th>Цена за шт.</th>
+          <th>Сумма</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="item : ${order.items}">
+          <td th:text="${item.pizza.name}">Pizza Name</td>
+          <td th:text="${item.quantity}">0</td>
+          <td th:text="${item.pizza.price}">0.00</td>
+          <td th:text="${item.quantity * item.pizza.price}">0.00</td>
+        </tr>
+        </tbody>
+      </table>
+
+      <div class="cart-total">
+        Итого:
+        <span th:text="${#numbers.formatDecimal(totalPrice, 2, 2)}">0.00</span> ₽
       </div>
 
-      <div th:if="${order != null}">
-        <table class="table table-bordered align-middle">
-          <thead>
-          <tr>
-            <th>Название</th>
-            <th>Кол-во</th>
-            <th>Цена за шт.</th>
-            <th>Сумма</th>
-          </tr>
-          </thead>
-          <tbody>
-          <tr th:each="item : ${order.items}">
-            <td th:text="${item.pizza.name}">Pizza Name</td>
-            <td th:text="${item.quantity}">0</td>
-            <td th:text="${item.pizza.price}">0.00</td>
-            <td th:text="${item.quantity * item.pizza.price}">0.00</td>
-          </tr>
-          </tbody>
-        </table>
+      <!-- Форма оплаты (PaymentInfo) -->
+      <h3>Оформление заказа</h3>
+      <form class="checkout-form"
+            th:action="@{/checkout}"
+            method="post"
+            th:object="${paymentInfo}">
 
-        <div class="mb-4 fw-bold fs-5">
-          Итого: <span th:text="${#numbers.formatDecimal(totalPrice, 2, 2)}">0.00</span> ₽
+        <div>
+          <label for="cardNumber">Номер карты</label>
+          <input id="cardNumber" type="text" th:field="*{cardNumber}" required />
         </div>
 
-        <!-- Форма оплаты -->
-        <h4>Оформление заказа</h4>
-        <form th:action="@{/cart/checkout}" method="post" th:object="${paymentInfo}" class="row g-3">
-          <div class="col-md-6">
-            <label class="form-label">Номер карты</label>
-            <input type="text" th:field="*{cardNumber}" class="form-control" required>
-          </div>
-          <div class="col-md-6">
-            <label class="form-label">Имя на карте</label>
-            <input type="text" th:field="*{cardHolderName}" class="form-control" required>
-          </div>
-          <div class="col-md-12">
-            <label class="form-label">Адрес</label>
-            <input type="text" th:field="*{address}" class="form-control" required>
-          </div>
-          <div class="col-md-6">
-            <label class="form-label">Город</label>
-            <input type="text" th:field="*{city}" class="form-control" required>
-          </div>
-          <div class="col-md-6">
-            <label class="form-label">Почтовый индекс</label>
-            <input type="text" th:field="*{postalCode}" class="form-control" required>
-          </div>
-          <div class="col-12">
-            <button type="submit" class="btn btn-primary">
-              Оплатить
-            </button>
-          </div>
-        </form>
-      </div>
+        <div>
+          <label for="cardHolderName">Имя на карте</label>
+          <input id="cardHolderName" type="text" th:field="*{cardHolderName}" required />
+        </div>
 
-    </th:block>
-  </th:block>
-</head>
-<body></body>
+        <div>
+          <label for="address">Адрес</label>
+          <input id="address" type="text" th:field="*{address}" required />
+        </div>
+
+        <div>
+          <label for="city">Город</label>
+          <input id="city" type="text" th:field="*{city}" required />
+        </div>
+
+        <div>
+          <label for="postalCode">Почтовый индекс</label>
+          <input id="postalCode" type="text" th:field="*{postalCode}" required />
+        </div>
+
+        <button type="submit">Оплатить</button>
+      </form>
+
+    </div>
+  </div>
+
+</div>
+</body>
 </html>

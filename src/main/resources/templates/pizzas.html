@@ -4,81 +4,294 @@
   <meta charset="UTF-8" />
   <title>Каталог | Maestro Pizza</title>
 
-  <th:block th:replace="~{layout :: contentPlaceholder}">
-    <th:block th:fragment="contentPlaceholder">
+  <style>
+    /* ====== Глобальные стили ====== */
+    html, body {
+      margin: 0; padding: 0;
+      width: 100%; height: 100%;
+      overflow-x: hidden;
+      font-family: "Arial", sans-serif;
+      background: linear-gradient(135deg, #ffa23f 0%, #ff5740 100%);
+      background-attachment: fixed;
+      color: #fff;
+      position: relative;
+    }
+    .navbar {
+      position: fixed; top: 0; left: 0;
+      width: 100%; height: 60px;
+      background: rgba(0,0,0,0.3); backdrop-filter: blur(6px);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 1rem; box-sizing: border-box;
+      z-index: 10;
+    }
+    .navbar .logo {
+      font-weight: bold; font-size: 1.5rem;
+    }
+    .navbar .nav-links a {
+      margin-left: 1.5rem;
+      color: #fff; text-decoration: none;
+      font-weight: 600; transition: color 0.3s;
+    }
+    .navbar .nav-links a:hover {
+      color: #ffdc00;
+    }
 
-      <!-- Поиск -->
-      <div class="row mb-3">
-        <div class="col-md-6">
-          <form th:action="@{/pizzas}" method="get">
-            <div class="input-group">
-              <input type="text" name="search" class="form-control"
-                     placeholder="Поиск пиццы..." th:value="${search}" />
-              <button type="submit" class="btn btn-primary">Искать</button>
-            </div>
-          </form>
-        </div>
-      </div>
+    .page-content {
+      margin-top: 80px; /* отступ под navbar */
+      padding: 1rem 2rem;
+      box-sizing: border-box;
+      position: relative;
+    }
 
-      <!-- Свайп-меню (просто горизонтальный скролл категорий) -->
-      <div class="category-scroll mb-4">
-        <a href="#cat-pizza" class="category-link">Пиццы</a>
-        <a href="#cat-garnires" class="category-link">Гарниры</a>
-        <a href="#cat-drinks" class="category-link">Напитки</a>
-        <!-- ... и т.д. -->
-      </div>
+    /* ====== Поиск ====== */
+    .search-row {
+      display: flex; flex-wrap: wrap;
+      margin-bottom: 1rem;
+    }
+    .search-row form {
+      display: flex;
+      max-width: 400px; width: 100%;
+    }
+    .search-row input[type="text"] {
+      flex: 1; padding: 0.6rem;
+      border: none; border-radius: 6px 0 0 6px;
+      outline: none; font-size: 1rem;
+    }
+    .search-row button {
+      padding: 0.6rem 1.2rem; border: none;
+      background-color: #ff5151; color: #fff;
+      border-radius: 0 6px 6px 0; font-weight: 600;
+      font-size: 1rem; cursor: pointer; transition: background 0.3s;
+    }
+    .search-row button:hover {
+      background-color: #f44141;
+    }
 
-      <!-- Список карточек пицц -->
-      <div class="row row-cols-1 row-cols-md-3 g-4">
-        <div class="col" th:each="pizza : ${pizzas}">
-          <div class="card h-100 pizza-card">
-            <img th:src="${pizza.imageUrl}" class="card-img-top" alt="Фото пиццы" />
-            <div class="card-body d-flex flex-column">
-              <h5 class="card-title" th:text="${pizza.name}">Pizza Name</h5>
-              <p class="card-text fw-bold mb-2">
-                <span th:text="${pizza.price}"></span> ₽
-              </p>
-              <!-- Кнопка (модальное окно детально) -->
-              <button type="button"
-                      class="btn btn-outline-info mt-auto open-modal-btn"
-                      data-id="${pizza.id}">
-                Детальнее
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
+    /* ====== Категории ====== */
+    .category-scroll {
+      white-space: nowrap;
+      overflow-x: auto;
+      margin-bottom: 1.5rem;
+    }
+    .category-link {
+      display: inline-block;
+      margin-right: 1rem; color: #fff;
+      text-decoration: none; font-weight: 600;
+      padding: 0.4rem 0.8rem;
+      background: rgba(0,0,0,0.2); border-radius: 6px;
+      transition: background 0.3s;
+    }
+    .category-link:hover {
+      background: rgba(255,255,255,0.2);
+    }
+    .active-cat {
+      background: rgba(255,255,255,0.5);
+      color: #000;
+    }
 
-      <!-- Кастомное модальное окно -->
-      <div id="pizzaModal" class="modal-custom">
-        <div class="modal-content-custom">
-          <span class="close-modal">&times;</span>
-          <div class="modal-body-custom">
-            <h3 id="modalPizzaName">Название пиццы</h3>
-            <img id="modalPizzaImage" src="#" alt="Пицца" class="img-fluid mb-3" />
-            <p id="modalPizzaDescription"></p>
-            <p>
-              <strong>Цена: </strong>
-              <span id="modalPizzaPrice"></span> ₽
-            </p>
-            <!-- Форма для добавления в корзину -->
-            <form th:action="@{/cart/add}" method="post">
-              <input type="hidden" name="pizzaId" id="modalPizzaId" value="" />
-              <div class="mb-3">
-                <label for="quantity" class="form-label">Количество:</label>
-                <input type="number" name="quantity" id="quantity"
-                       class="form-control" min="1" value="1" required />
-              </div>
-              <button type="submit" class="btn btn-success">
-                Добавить в корзину
-              </button>
-            </form>
-          </div>
-        </div>
-      </div>
+    /* ====== Сетка карточек (каталог) ====== */
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1.5rem;
+    }
+    .pizza-card {
+      background: rgba(255,255,255,0.2);
+      border-radius: 10px;
+      overflow: hidden;
+      display: flex; flex-direction: column;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      min-height: 420px;
+      transition: transform 0.3s;
+    }
+    .pizza-card:hover {
+      transform: translateY(-3px);
+    }
+    .pizza-card img {
+      width: 100%; height: 220px;
+      object-fit: cover; display: block;
+    }
+    .pizza-card .card-body {
+      flex: 1; display: flex; flex-direction: column;
+      padding: 1.2rem;
+    }
+    .pizza-card h5 {
+      font-size: 1.2rem; margin: 0 0 0.5rem;
+    }
+    .pizza-card p {
+      margin: 0.2rem 0;
+    }
+    .pizza-card a {
+      margin-top: auto;
+      padding: 0.6rem;
+      text-decoration: none;
+      background: rgba(255,255,255,0.3);
+      color: #fff;
+      border-radius: 6px;
+      text-align: center;
+      font-weight: 600;
+      transition: background 0.3s;
+    }
+    .pizza-card a:hover {
+      background: rgba(255,255,255,0.5);
+    }
 
-    </th:block>
-  </th:block>
+    /* ====== CSS-модалка (по центру) ====== */
+    .modal-overlay {
+      display: none;
+    }
+    .detail-modal-block {
+      display: none;
+    }
+
+    /* Когда класс .show-modal включен => оверлей, окно */
+    .show-modal .modal-overlay {
+      display: block;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background-color: rgba(0,0,0,0.6);
+      z-index: 999;
+    }
+    .show-modal .detail-modal-block {
+      display: block;
+      position: fixed;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 90%;
+      max-width: 600px;
+      background-color: rgba(255,255,255,0.95);
+      border-radius: 10px;
+      padding: 2rem;
+      color: #000;
+      z-index: 1000;
+      box-sizing: border-box;
+    }
+
+    /* Крестик "закрыть" */
+    .close-link {
+      position: absolute;
+      top: 1rem; right: 1rem;
+      font-size: 1.5rem; font-weight: bold;
+      text-decoration: none;
+      color: #333;
+    }
+    .close-link:hover {
+      color: #000;
+    }
+
+    /* Внутри "модалки" */
+    .detail-modal-block img {
+      display: block; max-width: 100%;
+      border-radius: 6px; margin-bottom: 1rem;
+    }
+    .detail-modal-block h2 {
+      margin-top: 0; font-size: 1.6rem; margin-bottom: 0.5rem; font-weight: 700;
+    }
+    .detail-modal-block p {
+      margin: 0.5rem 0; font-size: 1.1rem;
+    }
+    .price {
+      font-weight: 600; font-size: 1.2rem; margin-bottom: 1rem;
+    }
+    .modal-form {
+      display: flex; align-items: center; gap: 1rem;
+      margin-top: 1rem;
+    }
+    .modal-form input[type="number"] {
+      width: 60px;
+    }
+    .modal-form button {
+      background: #5cb85c; border: none;
+      padding: 0.5rem 1rem; color: #fff; font-weight: 600;
+      border-radius: 6px; cursor: pointer;
+    }
+    .modal-form button:hover {
+      background: #4cae4c;
+    }
+  </style>
 </head>
-<body></body>
+
+<body>
+<!-- Navbar -->
+<div class="navbar">
+  <div class="logo">Maestro Pizza</div>
+  <div class="nav-links">
+    <a th:href="@{/cart}">Корзина</a>
+    <a th:href="@{/profile}">Профиль</a>
+  </div>
+</div>
+
+<!-- Если showModal=true => добавим класс show-modal на .page-content -->
+<div class="page-content"
+     th:classappend="${showModal} ? ' show-modal' : ''">
+
+  <div class="search-row">
+    <form th:action="@{/pizzas}" method="get">
+      <input type="text" name="search" placeholder="Поиск пиццы..." th:value="${search}"/>
+      <button type="submit">Искать</button>
+    </form>
+  </div>
+
+  <div class="category-scroll">
+    <a th:href="@{/pizzas(category=1)}"
+       class="category-link"
+       th:classappend="${category} == 1 ? ' active-cat' : ''">
+      Пиццы
+    </a>
+    <a th:href="@{/pizzas(category=2)}"
+       class="category-link"
+       th:classappend="${category} == 2 ? ' active-cat' : ''">
+      Гарниры
+    </a>
+    <a th:href="@{/pizzas(category=3)}"
+       class="category-link"
+       th:classappend="${category} == 3 ? ' active-cat' : ''">
+      Напитки
+    </a>
+  </div>
+
+  <!-- Каталог карточек -->
+  <div class="cards-grid">
+    <div class="pizza-card" th:each="pizza : ${pizzas}">
+      <img th:src="${pizza.imageUrl}" alt="Фото пиццы"/>
+      <div class="card-body">
+        <h5 th:text="${pizza.name}">Pizza Name</h5>
+        <p>
+          <span th:text="${pizza.price}">999</span> ₽
+        </p>
+        <!-- Ссылка "Детальнее" => detailId=pizza.id => show-modal -->
+        <a th:href="@{/pizzas(detailId=${pizza.id}, category=${category}, search=${search})}">
+          Детальнее
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Overlay + "модалка" блок -->
+  <div class="modal-overlay"></div>
+
+  <div class="detail-modal-block" th:if="${detailPizza} != null">
+    <!-- Крестик => ссылка, убираем detailId -->
+    <a class="close-link"
+       th:href="@{/pizzas(category=${category}, search=${search})}">
+      &#10005;
+    </a>
+    <h2 th:text="${detailPizza.name}">Название пиццы</h2>
+    <img th:src="${detailPizza.imageUrl}" alt="Пицца"/>
+    <p th:text="${detailPizza.description}">Описание</p>
+    <p class="price">
+      Цена: <span th:text="${detailPizza.price}">0</span> ₽
+    </p>
+    <!-- Добавить в корзину -->
+    <form th:action="@{/add}" method="post" class="modal-form">
+      <input type="hidden" name="pizzaId" th:value="${detailPizza.id}"/>
+      <label for="qty">Кол-во:</label>
+      <input id="qty" type="number" name="quantity" min="1" value="1" required/>
+      <button type="submit">Добавить в корзину</button>
+    </form>
+  </div>
+
+</div>
+</body>
 </html>

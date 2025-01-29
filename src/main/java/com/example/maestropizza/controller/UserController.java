@@ -31,10 +31,14 @@ public class UserController {
 
     @GetMapping("/profile")
     public String profile(Model model) {
-        // Получаем текущего пользователя
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         User currentUser = userService.findByUsername(username);
+
+        // Добавляем в модель и user, и его заказы
         model.addAttribute("user", currentUser);
+        model.addAttribute("orders", currentUser.getOrders());
+
         return "profile";
     }
+
 }

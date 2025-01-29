@@ -35,4 +35,5 @@ public class Order {
     // Информация об оплате
     @OneToOne(mappedBy = "order", cascade = CascadeType.ALL)
     private PaymentInfo paymentInfo;
+
 }

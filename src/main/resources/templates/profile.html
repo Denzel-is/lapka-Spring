@@ -4,45 +4,249 @@
   <meta charset="UTF-8" />
   <title>Профиль | Maestro Pizza</title>
 
-  <th:block th:replace="~{layout :: contentPlaceholder}">
-    <th:block th:fragment="contentPlaceholder">
+  <style>
+    /* ====== Глобальный фон, анимация "топпингов" ====== */
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow-x: hidden;
+      font-family: "Arial", sans-serif;
+      background: linear-gradient(135deg, #ffa23f 0%, #ff5740 100%);
+      background-attachment: fixed;
+      color: #fff;
+      position: relative;
+    }
+    .pizza-toppings {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      margin: 0; padding: 0;
+      list-style: none;
+      overflow: hidden;
+      z-index: 0;
+      pointer-events: none;
+    }
+    .pizza-toppings li {
+      position: absolute;
+      display: block;
+      border-radius: 50%;
+      bottom: -50px;
+      animation: toppingFloat 15s infinite ease-in-out;
+    }
+    /* Примерная раскладка */
+    .pizza-toppings li:nth-child(1)  { background: #d9534f; width: 40px; height: 40px;  left: 10%; }
+    .pizza-toppings li:nth-child(2)  { background: #343a40; width: 30px; height: 30px;  left: 25%; animation-delay: 2s; }
+    .pizza-toppings li:nth-child(3)  { background: #5cb85c; width: 25px; height: 25px;  left: 40%; animation-delay: 4s; }
+    .pizza-toppings li:nth-child(4)  { background: #d9534f; width: 60px; height: 60px;  left: 55%; animation-delay: 1s; }
+    .pizza-toppings li:nth-child(5)  { background: #343a40; width: 35px; height: 35px;  left: 70%; animation-delay: 3s; }
+    .pizza-toppings li:nth-child(6)  { background: #5cb85c; width: 45px; height: 45px;  left: 85%; animation-delay: 5s; }
+    .pizza-toppings li:nth-child(7)  { background: #d9534f; width: 80px; height: 80px;  left: 30%; animation-delay: 6s; }
+    .pizza-toppings li:nth-child(8)  { background: #343a40; width: 20px; height: 20px;  left: 60%; animation-delay: 7s; }
+    .pizza-toppings li:nth-child(9)  { background: #5cb85c; width: 25px; height: 25px;  left: 45%; animation-delay: 8s; }
+    .pizza-toppings li:nth-child(10) { background: #d9534f; width: 50px; height: 50px;  left: 75%; animation-delay: 2s; }
 
-      <h2 class="mb-4">Мой профиль</h2>
-      <div class="card mb-4" style="max-width: 500px;">
-        <div class="card-body">
-          <h5 class="card-title" th:text="${user.fullName}">Имя Фамилия</h5>
-          <p class="card-text mb-1">
-            <strong>Логин:</strong>
-            <span th:text="${user.username}">username</span>
-          </p>
-        </div>
-      </div>
+    @keyframes toppingFloat {
+      0%   { transform: translateY(0) rotate(0deg); opacity: 1; }
+      100% { transform: translateY(-1000px) rotate(720deg); opacity: 0; }
+    }
 
-      <h4>Мои заказы</h4>
-      <div th:if="${orders == null or orders.size() == 0}">
-        <p>У вас ещё нет заказов.</p>
-      </div>
-      <div th:if="${orders != null and orders.size() > 0}">
-        <table class="table table-sm">
-          <thead>
-          <tr>
-            <th>ID заказа</th>
-            <th>Дата</th>
-            <th>Оплачен?</th>
-          </tr>
-          </thead>
-          <tbody>
-          <tr th:each="ord : ${orders}">
-            <td th:text="${ord.id}"></td>
-            <td th:text="${#temporals.format(ord.createdAt, 'dd.MM.yyyy HH:mm')}"></td>
-            <td th:text="${ord.paymentInfo != null ? 'Да' : 'Нет'}"></td>
-          </tr>
-          </tbody>
-        </table>
-      </div>
+    /* ====== "Стеклянная" navbar ====== */
+    .navbar {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 60px;
+      background: rgba(0,0,0,0.3);
+      backdrop-filter: blur(6px);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 1rem;
+      box-sizing: border-box;
+      z-index: 10;
+      border-bottom: 1px solid rgba(255,255,255,0.2);
+    }
+    .navbar .logo {
+      font-weight: bold; font-size: 1.5rem;
+    }
+    .navbar .nav-links a {
+      margin-left: 1.5rem;
+      color: #fff;
+      text-decoration: none;
+      font-weight: 600;
+      transition: color 0.3s;
+    }
+    .navbar .nav-links a:hover {
+      color: #ffdc00;
+    }
 
-    </th:block>
-  </th:block>
+    /* ====== Контейнер, содержащий всё остальное ====== */
+    .page-content {
+      margin-top: 80px;
+      padding: 2rem;
+      box-sizing: border-box;
+      position: relative;
+      z-index: 1;
+      max-width: 1200px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .profile-heading {
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 2rem;
+    }
+
+    /*
+      Одна общая стилизация для "карточек":
+      делаем width: 70%, margin: 0 auto -
+      чтобы обе карты (профиль и заказы)
+      были одинаковой ширины и по центру.
+      При желании max-width: 800px, чтобы
+      не было слишком растянуто на широком экране.
+    */
+    .profile-block, .orders-block {
+      width: 70%;
+      max-width: 800px;
+      margin: 0 auto 2rem;  /* центрируем, + отступ снизу */
+      background: rgba(255,255,255,0.2);
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      padding: 1.5rem;
+    }
+
+    /* ====== Профиль (avatar + info) ====== */
+    .profile-content {
+      display: flex;
+      align-items: center;
+    }
+    .profile-avatar {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-right: 1.5rem;
+      border: 2px solid rgba(255,255,255,0.4);
+    }
+    .profile-info {
+      display: flex;
+      flex-direction: column;
+    }
+    .profile-info .user-name {
+      font-size: 1.6rem;
+      font-weight: 700;
+      margin: 0 0 0.5rem;
+    }
+    .profile-info .user-login {
+      font-size: 1.1rem;
+      margin: 0.2rem 0;
+    }
+    .profile-info strong {
+      font-weight: 600;
+    }
+
+    /* ====== Заказы ====== */
+    .orders-title {
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin-top: 0;
+      margin-bottom: 1rem;
+    }
+    .no-orders {
+      font-size: 1.1rem;
+      margin: 0;
+    }
+
+    .orders-table {
+      width: 100%;
+      border-collapse: collapse;
+      background: rgba(255,255,255,0.15);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+    .orders-table th, .orders-table td {
+      padding: 0.7rem 1rem;
+      border: none;
+      font-size: 1rem;
+    }
+    .orders-table thead {
+      background: rgba(255,255,255,0.3);
+    }
+    .orders-table th {
+      font-weight: 600;
+    }
+    .orders-table tr:nth-child(even) {
+      background: rgba(255,255,255,0.1);
+    }
+  </style>
 </head>
-<body></body>
+
+<body>
+
+<!-- Фоновые анимированные "топпинги" -->
+<ul class="pizza-toppings">
+  <li></li><li></li><li></li><li></li><li></li>
+  <li></li><li></li><li></li><li></li><li></li>
+</ul>
+
+<!-- Навбар -->
+<div class="navbar">
+  <div class="logo">Maestro Pizza</div>
+  <div class="nav-links">
+    <a th:href="@{/pizzas}">Каталог</a>
+    <a th:href="@{/cart}">Корзина</a>
+  </div>
+</div>
+
+<div class="page-content">
+
+  <h1 class="profile-heading">Мой профиль</h1>
+
+  <!-- Блок профиля (avatar + name + login) -->
+  <div class="profile-block">
+    <div class="profile-content">
+      <!-- Заглушка-аватар -->
+      <img class="profile-avatar"
+           src="https://via.placeholder.com/100x100.png?text=User"
+           alt="Avatar" />
+      <div class="profile-info">
+        <h2 class="user-name" th:text="${user.fullName}">Имя Фамилия</h2>
+        <p class="user-login">
+          <strong>Логин:</strong>
+          <span th:text="${user.username}">username</span>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Блок заказов (одинаковая ширина - 70%) -->
+  <div class="orders-block">
+    <h3 class="orders-title">Мои заказы</h3>
+
+    <!-- Если нет заказов -->
+    <div th:if="${orders == null or #lists.isEmpty(orders)}">
+      <p class="no-orders">У вас ещё нет заказов.</p>
+    </div>
+
+    <!-- Если есть заказы -->
+    <table class="orders-table" th:if="${orders != null and !#lists.isEmpty(orders)}">
+      <thead>
+      <tr>
+        <th>ID заказа</th>
+        <th>Дата</th>
+        <th>Оплачен?</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr th:each="ord : ${orders}">
+        <td th:text="${ord.id}">1</td>
+        <td th:text="${ord.createdAt != null ? #dates.format(ord.createdAt, 'dd.MM.yyyy HH:mm') : 'N/A'}">01.01.2023 12:00</td>
+        <td th:text="${ord.paymentInfo != null ? 'Да' : 'Нет'}">Нет</td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>
+</body>
 </html>

@@ -2,40 +2,307 @@
 <html lang="ru" xmlns:th="http://www.thymeleaf.org">
 <head>
   <meta charset="UTF-8" />
-  <title>Вход | Maestro Pizza</title>
+  <title>Регистрация | Maestro Pizza</title>
 
-  <th:block th:replace="~{layout :: contentPlaceholder}">
-    <th:block th:fragment="contentPlaceholder">
+  <!-- Bootstrap 5 (CDN) -->
+  <link
+          rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+          integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1r1Rx47E1rX1Q7kYI81o8/Ib2b9EKAidS0ugA7KGv1T"
+          crossorigin="anonymous"
+  >
 
-      <div class="row justify-content-center mt-5">
-        <div class="col-md-4">
-          <h2 class="text-center mb-4">Вход</h2>
+  <!-- Bootstrap Icons (CDN) -->
+  <link
+          rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"
+  >
 
-          <!-- Форма логина (Spring Security) -->
-          <form th:action="@{/login}" method="post">
-            <div class="mb-3">
-              <label for="username" class="form-label">Логин</label>
-              <input type="text" class="form-control" id="username"
-                     name="username" required />
-            </div>
-            <div class="mb-3">
-              <label for="password" class="form-label">Пароль</label>
-              <input type="password" class="form-control" id="password"
-                     name="password" required />
-            </div>
-            <button type="submit" class="btn btn-primary w-100">Войти</button>
-          </form>
+  <style>
+    /* Сброс отступов и растягивание на всю высоту */
+    html, body {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+        overflow-x: hidden; /* убираем горизонтальный скролл */
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
 
-          <div class="text-center mt-3">
-            <a th:href="@{/register}" class="text-decoration-underline">
-              Нет аккаунта? Зарегистрируйтесь
-            </a>
-          </div>
+    /* Фон: градиент (розовый -> фиолетовый), фиксирован для красоты */
+    body {
+        background: linear-gradient(135deg, #f09, #3023ae);
+        background-attachment: fixed;
+        color: #fff;
+        position: relative;
+    }
+
+    /* Контейнер, чтобы форма была по центру экрана */
+    .main-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        position: relative;
+        z-index: 1; /* над пузырьками */
+    }
+
+    /* Анимированные пузырьки на фоне */
+    .background-bubbles {
+        position: absolute;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        margin: 0; padding: 0;
+        list-style: none;
+        overflow: hidden;
+        z-index: 0; /* позади всего */
+    }
+    .background-bubbles li {
+        position: absolute;
+        width: 25px; height: 25px;
+        background: rgba(255, 255, 255, 0.6);
+        animation: bubble 15s infinite ease-in-out;
+        bottom: -50px; border-radius: 50%;
+    }
+    .background-bubbles li:nth-child(1)  { left: 10%; }
+    .background-bubbles li:nth-child(2)  {
+        left: 20%; width: 40px; height: 40px;
+        animation-delay: 2s; animation-duration: 17s;
+    }
+    .background-bubbles li:nth-child(3)  { left: 25%; animation-delay: 4s; }
+    .background-bubbles li:nth-child(4)  {
+        left: 40%;
+        width: 50px; height: 50px;
+        animation-duration: 22s;
+        background: rgba(255, 255, 255, 0.9);
+    }
+    .background-bubbles li:nth-child(5)  { left: 70%; }
+    .background-bubbles li:nth-child(6)  {
+        left: 80%; width: 40px; height: 40px;
+        animation-delay: 3s;
+    }
+    .background-bubbles li:nth-child(7)  {
+        left: 32%; width: 60px; height: 60px;
+        animation-delay: 7s;
+    }
+    .background-bubbles li:nth-child(8)  {
+        left: 55%; width: 20px; height: 20px;
+        animation-delay: 15s; animation-duration: 40s;
+        background: rgba(255, 255, 255, 0.2);
+    }
+    .background-bubbles li:nth-child(9)  {
+        left: 25%; width: 80px; height: 80px;
+        animation-delay: 2s; animation-duration: 40s;
+    }
+    .background-bubbles li:nth-child(10) {
+        left: 90%; width: 30px; height: 30px;
+        animation-delay: 3s;
+    }
+
+    @keyframes bubble {
+        0%   { transform: translateY(0)   rotate(0deg);   opacity: 1; }
+        100% { transform: translateY(-1000px) rotate(720deg); opacity: 0; }
+    }
+
+    /* Карточка (стеклянный эффект) */
+    .register-card {
+        background-color: rgba(0, 0, 0, 0.3);
+        backdrop-filter: blur(8px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+        width: 100%;
+        max-width: 500px; /* Шире, чтобы поля смотрелись просторнее */
+    }
+
+    .register-card h2 {
+        color: #fff;
+        margin-bottom: 1.5rem;
+        text-align: center;
+        font-size: 2rem;
+    }
+
+    /* Лейблы над полями */
+    .form-label {
+        color: #ddd;
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+    }
+
+    /* Контейнер для иконки */
+    .position-relative {
+        position: relative;
+        width: 100%;
+    }
+
+    /* Иконка, которая "висит" слева */
+    .input-icon {
+        position: absolute;
+        left: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #999;
+        font-size: 1.2rem;
+        pointer-events: none; /* не кликается */
+    }
+
+    /* Поле ввода */
+    .input-with-icon {
+        width: 90%;
+        padding-left: 50px; /* отступ для иконки */
+        background-color: rgba(255, 255, 255, 0.85);
+        border: none;
+        border-radius: 10px;
+        height: 56px; /* чуть повыше поля */
+        font-size: 1rem;
+        color: #333; /* тёмный текст */
+    }
+    .input-with-icon:focus {
+        outline: none;
+        box-shadow: 0 0 0 0.2rem rgba(255, 92, 151, 0.3);
+    }
+
+    /* Кнопка (градиент + анимация) */
+    .btn-register {
+        display: inline-block;
+        width: 100%;
+        padding: 0.8rem;
+        font-size: 1rem;
+        font-weight: 600;
+        color: #fff;
+        background: linear-gradient(45deg, #ff5c97, #ff327c);
+        border: none;
+        border-radius: 15px;
+        transition: all 0.3s ease;
+        margin-top: 0.5rem;
+    }
+    .btn-register:hover {
+        transform: translateY(-3px);
+        background: linear-gradient(45deg, #ff327c, #ff1663);
+    }
+
+    /* Ссылки */
+    .link-lightblue {
+        color: #a9d5f9;
+    }
+    .link-lightblue:hover {
+        color: #fff;
+        text-decoration: underline;
+    }
+
+    /* Адаптивность для маленьких экранов */
+    @media (max-width: 576px) {
+        .register-card {
+            margin: 1rem;
+            padding: 1.5rem;
+        }
+        .register-card h2 {
+            font-size: 1.75rem;
+        }
+    }
+  </style>
+
+</head>
+<body>
+
+<!-- Пузырьки на фоне -->
+<ul class="background-bubbles">
+  <li></li><li></li><li></li><li></li><li></li>
+  <li></li><li></li><li></li><li></li><li></li>
+</ul>
+
+<!-- Основной контейнер по центру -->
+<div class="main-container">
+
+  <!-- Здесь, если нужен лейаут, можно заменить на
+       <th:block th:replace="~{layout :: contentPlaceholder}">
+       <th:block th:fragment="contentPlaceholder">
+       ...и закрыть, как в вашем проекте -->
+
+  <div class="register-card">
+    <h2>
+      <i class="bi bi-person-plus-fill me-2"></i>
+      Регистрация
+    </h2>
+
+    <!-- Форма регистрации -->
+    <form th:action="@{/register}" th:object="${user}" method="post" class="mb-3">
+
+      <!-- Поле "Логин" -->
+      <div class="mb-4">
+        <label for="username" class="form-label">Логин</label>
+        <div class="position-relative">
+          <i class="bi bi-person-fill input-icon"></i>
+          <input
+                  type="text"
+                  class="form-control input-with-icon"
+                  id="username"
+                  th:field="*{username}"
+                  placeholder="Введите ваш логин"
+                  required
+          />
         </div>
       </div>
 
-    </th:block>
-  </th:block>
-</head>
-<body></body>
+      <!-- Поле "Пароль" -->
+      <div class="mb-4">
+        <label for="password" class="form-label">Пароль</label>
+        <div class="position-relative">
+          <i class="bi bi-lock-fill input-icon"></i>
+          <input
+                  type="password"
+                  class="form-control input-with-icon"
+                  id="password"
+                  th:field="*{password}"
+                  placeholder="Введите пароль"
+                  required
+          />
+        </div>
+      </div>
+
+      <!-- Поле "Полное имя" -->
+      <div class="mb-4">
+        <label for="fullName" class="form-label">Полное имя</label>
+        <div class="position-relative">
+          <i class="bi bi-card-text input-icon"></i>
+          <input
+                  type="text"
+                  class="form-control input-with-icon"
+                  id="fullName"
+                  th:field="*{fullName}"
+                  placeholder="Укажите ваше имя (не обязательно)"
+          />
+        </div>
+      </div>
+
+      <!-- Кнопка регистрации -->
+      <button type="submit" class="btn-register">
+        Зарегистрироваться
+      </button>
+    </form>
+
+    <div class="text-center">
+      <span>Уже есть аккаунт? </span>
+      <a th:href="@{/login}" class="link-lightblue fw-bold">
+        Войти
+      </a>
+    </div>
+  </div>
+
+  <!-- Закрываем Thymeleaf блоки, если используете лейаут
+       </th:block>
+       </th:block>
+  -->
+
+</div>
+
+<!-- Bootstrap 5 JS (опционально) -->
+<script
+        src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-q20wq2r5YVoHnIYkHp3T6a/YKe1D2Pco3VP6CFpuepNBrGSM+HGEs1ezLrFumvKfC"
+        crossorigin="anonymous">
+</script>
+
+</body>
 </html>
