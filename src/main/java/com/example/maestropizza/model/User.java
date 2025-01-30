@@ -37,6 +37,11 @@ public class User {
     @Builder.Default
     private Set<Order> orders = new HashSet<>();
 
+    // Связь с избранными пиццами
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private Set<Favorite> favorites = new HashSet<>();
+
     /**
      * Преобразовываем нашу сущность в объект UserDetails,
      * используя встроенный билдер Spring Security.

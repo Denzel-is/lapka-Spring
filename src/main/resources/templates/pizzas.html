@@ -219,6 +219,7 @@
   <div class="nav-links">
     <a th:href="@{/cart}">Корзина</a>
     <a th:href="@{/profile}">Профиль</a>
+    <a th:href="@{/favorites}">Избранное</a>
   </div>
 </div>
 
@@ -260,7 +261,11 @@
         <p>
           <span th:text="${pizza.price}">999</span> ₽
         </p>
-        <!-- Ссылка "Детальнее" => detailId=pizza.id => show-modal -->
+        <form th:action="@{/favorites/add}" method="post">
+          <input type="hidden" name="pizzaId" th:value="${pizza.id}" />
+          <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+          <button type="submit">Добавить в избранное</button>
+        </form>
         <a th:href="@{/pizzas(detailId=${pizza.id}, category=${category}, search=${search})}">
           Детальнее
         </a>
