@@ -1,29 +1,256 @@
 <!DOCTYPE html>
 <html lang="ru" xmlns:th="http://www.thymeleaf.org">
 <head>
-  <meta charset="UTF-8" />
-  <title>Главная | Maestro Pizza</title>
+  <meta charset="UTF-8">
+  <title>Maestro Pizza | Главная</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- Подключаемся к layout.html:
-       заменяем тамошний фрагмент contentPlaceholder на наш контент -->
-  <th:block th:replace="~{layout :: contentPlaceholder}">
-    <!-- Наш контент оборачиваем во фрагмент с тем же именем -->
-    <th:block th:fragment="contentPlaceholder">
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+          href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap"
+          rel="stylesheet">
 
-      <div class="text-center py-5">
-        <h1>Добро пожаловать в Maestro Pizza!</h1>
-        <p class="lead mt-3">
-          Самые вкусные пиццы по приятным ценам. Доставка и самовывоз.
-        </p>
-        <a class="btn btn-warning btn-lg fw-bold text-white" th:href="@{/pizzas}">
-          Перейти к каталогу
-        </a>
-      </div>
+  <style>
+    /* ====== Сброс базовых стилей ====== */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    html, body {
+      height: 100%;
+      width: 100%;
+    }
+    body {
+      font-family: 'Roboto', sans-serif;
+      background-color:white;
+      background-size: cover;
 
-    </th:block>
-  </th:block>
+      color: #333;
+      line-height: 1.4;
+      overflow-x: hidden;
+    }
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
+
+    /* ====== Navbar ====== */
+    .navbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 64px;
+      background-color: rgba(255, 255, 255, 0.9);
+      border-bottom: 1px solid #eee;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 2rem;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+      z-index: 1000;
+    }
+    .navbar-left {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    .navbar-logo img {
+      height: 70px;
+      width: auto;
+    }
+    .navbar-right {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+    }
+    .navbar-right a {
+      font-weight: 500;
+      color: #555;
+      transition: color 0.3s;
+    }
+    .navbar-right a:hover {
+      color: #FF5722;
+    }
+
+    /* ====== Hero Section ====== */
+    .hero {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 80px 2rem 2rem;
+      margin-top: 64px;
+      flex-wrap: wrap;
+      width: 100%;
+    }
+    .hero-content {
+      max-width: 700px;
+      margin-bottom: 2rem;
+    }
+    .hero-content h1 {
+      font-size: 3rem;
+      line-height: 1.2;
+      margin-bottom: 1rem;
+    }
+    .hero-content .highlight {
+      color: #ff6b6b;
+    }
+    .hero-btn {
+      background-color: #ff6b6b;
+      color: #fff;
+      padding: 0.8rem 1.5rem;
+      border: none;
+      cursor: pointer;
+      border-radius: 5px;
+      font-size: 1rem;
+      font-weight: 500;
+      transition: background-color 0.3s;
+    }
+    .hero-btn:hover {
+      background-color: #ff4c4c;
+    }
+    .hero-image img {
+      max-width: 400px;
+      width: 100%;
+      height: auto;
+      border-radius: 10px;
+    }
+
+    /* ====== Стили для слайдера ====== */
+    .slider-container {
+      width: 100%;
+      padding: 2rem 0;
+      text-align: center;
+    }
+    .slider-title {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: #333;
+      margin-bottom: 1rem;
+    }
+
+    /* Скролл */
+    .slider-track {
+      display: flex;
+      gap: 2rem;
+      overflow: hidden;
+      white-space: nowrap;
+      animation: slide 30s linear infinite;
+    }
+
+    /* Карточки товаров */
+    .slider-item {
+      background: linear-gradient(145deg, #f8f8f8, #ffffff);
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      flex: 0 0 auto;
+      width: 280px;
+      height: 420px;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      transition: transform 0.3s ease-in-out, box-shadow 0.3s;
+    }
+    .slider-item:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+    }
+    .slider-item img {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+      border-radius: 4px;
+      margin-bottom: 1rem;
+    }
+    .slider-item h4 {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #333;
+      height: 40px; /* Фиксированная высота заголовка */
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      overflow: hidden;
+    }
+    .slider-item p {
+      font-size: 1.2rem;
+      color: #FF5722;
+      font-weight: bold;
+    }
+
+    /* Кнопка заказа */
+    .order-btn {
+      background-color: #ff5722;
+      color: white;
+      border: none;
+      padding: 0.7rem 1rem;
+      border-radius: 5px;
+      font-size: 1rem;
+      margin-top: auto;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    .order-btn:hover {
+      background-color: #e04a1c;
+    }
+
+    /* Анимация бесконечной прокрутки */
+    @keyframes slide {
+      from {
+        transform: translateX(0%);
+      }
+      to {
+        transform: translateX(-50%);
+      }
+    }
+  </style>
 </head>
 <body>
-<a href=""></a>
+
+<div class="navbar">
+  <div class="navbar-left">
+    <a th:href="@{/}" class="navbar-logo">
+      <img src="https://i.postimg.cc/85420cBb/Maestro-Pizza-1-removebg-preview.png"/>
+    </a>
+  </div>
+  <div class="navbar-right">
+    <a th:href="@{/pizzas}">Каталог</a>
+    <a th:href="@{/favorites}">Избранное</a>
+    <a th:href="@{/profile}">Профиль</a>
+    <a th:href="@{/cart}">Корзина</a>
+  </div>
+  <div th:if="${param.logout}" class="alert alert-info">
+    Вы успешно вышли из аккаунта.
+  </div>
+</div>
+
+<section class="hero">
+  <div class="hero-content">
+    <h1>Добро пожаловать в <span class="highlight">Maestro Pizza</span>!</h1>
+    <button class="hero-btn" onclick="window.location.href='/pizzas'">Начать заказ</button>
+  </div>
+  <div class="hero-image">
+<!--    <img src="https://i.postimg.cc/XJ0wSdjZ/1693270947-pushinka-top-p.png"/>-->
+  </div>
+</section>
+
+<div class="slider-container">
+  <h2 class="slider-title">Часто заказывают</h2>
+  <div class="slider-track">
+    <div class="slider-item" th:each="p : ${randomPizzasTwo}">
+      <img th:src="${p.imageUrl}" alt="Pizza">
+      <h4 th:text="${p.name}"></h4>
+      <p><span th:text="${p.price}"></span> тг</p>
+      <button class="order-btn">Заказать</button>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>

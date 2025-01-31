@@ -1,22 +1,35 @@
 package com.example.maestropizza.controller;
 
 
+import com.example.maestropizza.model.Pizza;
+import com.example.maestropizza.service.PizzaService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
+import java.util.List;
+
 @Controller
 public class HomeController {
 
-    @GetMapping("/")
-    public String home(Model model) {
-        // На главной просто выводим приветствие
-        model.addAttribute("title", "Добро пожаловать в нашу пиццерию!");
-        return "index";
+    private final PizzaService pizzaService;
+
+    @Autowired
+    public HomeController(PizzaService pizzaService) {
+        this.pizzaService = pizzaService;
     }
 
-    @GetMapping("/login")
-    public String login() {
-        return "login";
+    @GetMapping("/")
+    public String home(Model model) {
+        // Получаем случайные пиццы для первого слайдера
+        List<Pizza> randomPizzasOne = pizzaService.getRandomPizzas(20);
+        // Получаем случайные пиццы для второго слайдера
+        List<Pizza> randomPizzasTwo = pizzaService.getRandomPizzas(20);
+
+        model.addAttribute("randomPizzasOne", randomPizzasOne);
+        model.addAttribute("randomPizzasTwo", randomPizzasTwo);
+
+        return "index";
     }
 }

@@ -23,4 +23,13 @@ public class Pizza {
     @ManyToOne
     @JoinColumn(name = "category_id")
     private Category category;
+
+    public Pizza(int i, String ere, String маргарита, String r, double v) {
+    }
+
+    public Pizza(int i, String ere, String пепперони, double v) {
+    }
+
+    public Pizza(int i, String маргарита, double v, String традиционная) {
+    }
 }

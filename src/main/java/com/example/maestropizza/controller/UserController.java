@@ -6,7 +6,6 @@ import com.example.maestropizza.model.User;
 import com.example.maestropizza.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -31,10 +30,19 @@ public class UserController {
 
     @GetMapping("/profile")
     public String profile(Model model) {
-        // Получаем текущего пользователя
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         User currentUser = userService.findByUsername(username);
+
+        // Добавляем в модель и user, и его заказы
         model.addAttribute("user", currentUser);
+        model.addAttribute("orders", currentUser.getOrders());
+
         return "profile";
     }
+    @GetMapping("/login")
+    public String showLoginForm() {
+        return "login"; // Должен быть login.html в папке templates
+    }
+
+
 }

@@ -40,7 +40,7 @@ CREATE TABLE pizzas (
                         id SERIAL PRIMARY KEY,
                         name VARCHAR(255),
                         description TEXT,
-                        image_url VARCHAR(255),
+                        image_url TEXT,
                         price NUMERIC(10,2),
                         category_id INT,
                         CONSTRAINT fk_category FOREIGN KEY(category_id) REFERENCES categories(id)

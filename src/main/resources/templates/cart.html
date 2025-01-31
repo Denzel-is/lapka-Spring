@@ -1,20 +1,294 @@
 <!DOCTYPE html>
 <html lang="ru" xmlns:th="http://www.thymeleaf.org">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Корзина | Maestro Pizza</title>
+  <!-- Google Fonts -->
+  <link
+          href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap"
+          rel="stylesheet"
+  >
+  <style>
+    /* ====== Сброс базовых стилей ====== */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Roboto', sans-serif;
+      background-color: #fafafa;
+      color: #333;
+      line-height: 1.5;
+      min-height: 100vh;
+    }
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
 
-  <th:block th:replace="~{layout :: contentPlaceholder}">
-    <th:block th:fragment="contentPlaceholder">
+    /* ====== Navbar ====== */
+    .navbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 64px;
+      background-color: #fff;
+      border-bottom: 1px solid #eee;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 2rem;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+      z-index: 100;
+    }
+    .navbar-left {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    .navbar-logo img {
+      height: 70px;
+      width: auto;
+    }
+    .navbar-right {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+    }
+    .navbar-right a {
+      font-weight: 500;
+      color: #555;
+      transition: color 0.3s;
+    }
+    .navbar-right a:hover {
+      color: #FF5722;
+    }
 
-      <h2 class="mb-4">Моя корзина</h2>
+    /* ====== Основной контейнер страницы ====== */
+    .page-content {
+      padding: 80px 2rem 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+      transition: 0.3s ease-in-out;
+    }
+    .page-content h1 {
+      text-align: center;
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 2rem;
+      color: #444;
+    }
 
-      <div th:if="${order == null}">
-        <p>Корзина пуста.</p>
-      </div>
+    /* ====== Контейнер корзины (две колонки) ====== */
+    .cart-container {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 2rem;
+    }
+    /* При маленьких экранах делаем всё в одну колонку */
+    @media (max-width: 768px) {
+      .cart-container {
+        grid-template-columns: 1fr;
+      }
+    }
 
+    /* ====== Левая часть: блок с таблицей товаров ====== */
+    .cart-items-block {
+      background-color: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      padding: 1.5rem;
+    }
+    .empty-cart {
+      font-size: 1.1rem;
+      color: #666;
+      text-align: center;
+      padding: 2rem 0;
+    }
+    .cart-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 1.5rem;
+    }
+    .cart-table thead {
+      background-color: #f3f3f3;
+    }
+    .cart-table th,
+    .cart-table td {
+      padding: 0.8rem;
+      border: 1px solid #eee;
+      text-align: left;
+      font-size: 0.95rem;
+      color: #555;
+    }
+    .cart-table th {
+      font-weight: 500;
+    }
+    /* Красивый отступ вверху у заголовков таблицы */
+    .cart-table thead th {
+      padding-top: 1rem;
+      padding-bottom: 1rem;
+    }
+
+    /* ====== Правая часть: блок итоговой информации ====== */
+    .summary-block {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      background-color: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      padding: 1.5rem;
+      height: fit-content;
+    }
+    .summary-block .cart-total {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 0.5rem;
+    }
+    .summary-block .payment-toggle-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      background-color: #FF5722;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      padding: 0.6rem 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      outline: none;
+    }
+    .summary-block .payment-toggle-btn:hover {
+      background-color: #e04a1c;
+    }
+    .summary-block .payment-toggle-btn svg {
+      width: 20px;
+      height: 20px;
+      fill: currentColor;
+    }
+
+    /* ====== Форма оплаты ====== */
+    .checkout-form-wrapper {
+      display: none;
+    }
+    .checkout-form {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+    .checkout-form label {
+      display: block;
+      margin-bottom: 0.3rem;
+      font-weight: 500;
+      color: #555;
+    }
+    .checkout-form input[type="text"] {
+      width: 100%;
+      padding: 0.6rem;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 0.95rem;
+      outline: none;
+    }
+    .checkout-form button {
+      background-color: #FF5722;
+      border: none;
+      padding: 0.7rem 1.2rem;
+      color: #fff;
+      font-weight: 500;
+      font-size: 1rem;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      align-self: flex-start; /* Кнопка будет слева */
+      margin-top: 0.5rem;
+    }
+    .checkout-form button:hover {
+      background-color: #e04a1c;
+    }
+
+    /* Класс для отображения формы (toggle) */
+    .show {
+      display: block !important;
+    }
+    /* ====== СТИЛИ ДЛЯ КНОПКИ ВЫХОДА ====== */
+    .logout-form {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .logout-btn {
+      background: linear-gradient(135deg, #ff5c97, #ff327c); /* Градиент */
+      color: white;
+      font-size: 1rem;
+      font-weight: bold;
+      padding: 12px 24px;
+      border: none;
+      border-radius: 10px; /* Круглые границы */
+      cursor: pointer;
+      transition: all 0.3s ease-in-out;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+      text-transform: uppercase;
+    }
+
+    .logout-btn:hover {
+      transform: scale(1.05); /* Увеличивается при наведении */
+      background: linear-gradient(135deg, #ff327c, #ff1663); /* Темнее при наведении */
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    .logout-btn:active {
+      transform: scale(0.95); /* Эффект нажатия */
+    }
+  </style>
+</head>
+<body>
+
+<!-- Навбар -->
+<nav class="navbar">
+  <div class="navbar-left">
+    <a th:href="@{/}" class="navbar-logo">
+      <img src="https://i.postimg.cc/85420cBb/Maestro-Pizza-1-removebg-preview.png"/>
+    </a>
+  </div>
+  <div class="navbar-right">
+    <a th:href="@{/pizzas}">Каталог</a>
+    <a th:href="@{/favorites}">Избранное</a>
+    <a th:href="@{/profile}">Профиль</a>
+    <form th:action="@{/logout}" method="post" class="logout-form">
+      <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+      <button type="submit" class="logout-btn">
+        <i class="bi bi-box-arrow-right"></i> Выйти
+      </button>
+    </form>
+  </div>
+</nav>
+
+<!-- Основной контент -->
+<div class="page-content">
+  <h1>Моя корзина</h1>
+
+  <!-- Контейнер с таблицей товаров и информацией о заказе -->
+  <div class="cart-container">
+
+    <!-- Левая колонка: товары в корзине -->
+    <div class="cart-items-block">
+      <!-- Если заказа нет - корзина пуста -->
+      <p class="empty-cart" th:if="${order == null}">
+        Корзина пуста.
+      </p>
+
+      <!-- Если заказ есть - показываем таблицу -->
       <div th:if="${order != null}">
-        <table class="table table-bordered align-middle">
+        <table class="cart-table">
           <thead>
           <tr>
             <th>Название</th>
@@ -26,50 +300,102 @@
           <tbody>
           <tr th:each="item : ${order.items}">
             <td th:text="${item.pizza.name}">Pizza Name</td>
-            <td th:text="${item.quantity}">0</td>
+            <td th:text="${item.quantity}">1</td>
             <td th:text="${item.pizza.price}">0.00</td>
             <td th:text="${item.quantity * item.pizza.price}">0.00</td>
           </tr>
           </tbody>
         </table>
+      </div>
+    </div>
 
-        <div class="mb-4 fw-bold fs-5">
-          Итого: <span th:text="${#numbers.formatDecimal(totalPrice, 2, 2)}">0.00</span> ₽
-        </div>
+    <!-- Правая колонка: итоговая сумма + блок оплаты -->
+    <div class="summary-block" th:if="${order != null}">
 
-        <!-- Форма оплаты -->
-        <h4>Оформление заказа</h4>
-        <form th:action="@{/cart/checkout}" method="post" th:object="${paymentInfo}" class="row g-3">
-          <div class="col-md-6">
-            <label class="form-label">Номер карты</label>
-            <input type="text" th:field="*{cardNumber}" class="form-control" required>
-          </div>
-          <div class="col-md-6">
-            <label class="form-label">Имя на карте</label>
-            <input type="text" th:field="*{cardHolderName}" class="form-control" required>
-          </div>
-          <div class="col-md-12">
-            <label class="form-label">Адрес</label>
-            <input type="text" th:field="*{address}" class="form-control" required>
-          </div>
-          <div class="col-md-6">
-            <label class="form-label">Город</label>
-            <input type="text" th:field="*{city}" class="form-control" required>
-          </div>
-          <div class="col-md-6">
-            <label class="form-label">Почтовый индекс</label>
-            <input type="text" th:field="*{postalCode}" class="form-control" required>
-          </div>
-          <div class="col-12">
-            <button type="submit" class="btn btn-primary">
-              Оплатить
-            </button>
-          </div>
-        </form>
+      <!-- Сумма заказа -->
+      <div class="cart-total">
+        Итого: <span th:text="${#numbers.formatDecimal(totalPrice, 2, 2)}">0.00</span> тг
       </div>
 
-    </th:block>
-  </th:block>
-</head>
-<body></body>
+      <!-- Кнопка для открытия/закрытия формы оплаты -->
+      <button type="button" class="payment-toggle-btn" id="togglePaymentForm">
+        <svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"
+             stroke-linecap="round" stroke-linejoin="round" fill="none">
+          <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+          <path d="M1 10h22"></path>
+        </svg>
+        <span>Данные карты</span>
+      </button>
+
+      <!-- Форма оплаты (по умолчанию скрыта) -->
+      <div class="checkout-form-wrapper" id="checkoutFormWrapper">
+        <form class="checkout-form"
+              th:action="@{/checkout}"
+              method="post"
+              th:object="${paymentInfo}">
+
+          <!-- Номер карты -->
+          <div>
+            <label for="cardNumber">Номер карты</label>
+            <input
+                    id="cardNumber"
+                    type="text"
+                    th:field="*{cardNumber}"
+                    required
+            />
+          </div>
+
+          <!-- Имя на карте -->
+          <div>
+            <label for="cardHolderName">Имя на карте</label>
+            <input
+                    id="cardHolderName"
+                    type="text"
+                    th:field="*{cardHolderName}"
+                    required
+            />
+          </div>
+
+          <!-- Адрес доставки -->
+          <div>
+            <label for="address">Адрес доставки</label>
+            <input
+                    id="address"
+                    type="text"
+                    th:field="*{address}"
+                    required
+            />
+          </div>
+
+          <!-- Город -->
+          <div>
+            <label for="city">Город</label>
+            <input
+                    id="city"
+                    type="text"
+                    th:field="*{city}"
+                    required
+            />
+          </div>
+
+          <!-- Кнопка отправки формы -->
+          <button type="submit">Оплатить</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Скрипт для тоггла (открытия/закрытия) формы оплаты -->
+<script>
+  const toggleBtn = document.getElementById('togglePaymentForm');
+  const formWrapper = document.getElementById('checkoutFormWrapper');
+
+  if (toggleBtn && formWrapper) {
+    toggleBtn.addEventListener('click', () => {
+      formWrapper.classList.toggle('show');
+    });
+  }
+</script>
+</body>
 </html>

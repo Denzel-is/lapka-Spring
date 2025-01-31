@@ -56,24 +56,19 @@ public class SecurityConfig {
                 )
 
 
-                // Настраиваем форму логина:
                 .formLogin(login -> login
-                        .loginPage("/login")        // своя страница логина
-                        .defaultSuccessUrl("/", true) // куда перенаправлять после удачного входа
-                        .permitAll()                 // даём доступ ко /login всем
-                )
-
-                // Настраиваем логаут:
-                .logout(logout -> logout
-                        .logoutUrl("/logout")      // URL на который отправляется POST-запрос для логаута
-                        .logoutSuccessUrl("/")     // Куда перенаправлять после логаута
+                        .loginPage("/login")
+                        .defaultSuccessUrl("/", true) // После входа — на главную
                         .permitAll()
                 )
-
-
-        ;
-
-        // Собираем конфигурацию в объект SecurityFilterChain
+                .logout(logout -> logout
+                        .logoutUrl("/logout")
+                        .logoutSuccessUrl("/login?logout") // После выхода редирект на login
+                        .invalidateHttpSession(true)
+                        .deleteCookies("JSESSIONID")
+                );
         return http.build();
+
+
     }
 }
